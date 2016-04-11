@@ -5,6 +5,29 @@
 	xmlns:p="http://www.stratml.net/PerformancePlanOrReport"
 	exclude-result-prefixes="p" 
 	version="1.0">
+	
+<!-- 
+	Updated 2016-04-11
+	- moved representation of <Relationship> elements from above to below the indicators table
+	- modified logic for additional <Descriptor> column
+	- some minor changes to styles / representation
+	
+	All changes are marked with '(dhh)'
+	
+	Detlef Horst Heyn
+	detlef.heyn@googlemail.com
+-->
+
+<!-- 
+	Updated 2016-04-10
+	- Added logic to output Desriptor content in the INDICATORS table
+	
+	Marijan (Mario) Madunic
+	mario.madunic@nsxml.com
+	North Shore XML Consulting
+	BC, Canada
+-->
+	
 <!-- On October 10, 2015, Colin Mackenzie (http://mackenziesolutions.co.uk) changed the orientation of the MeasurementInstance table so that the Type, Startdate, EdnDate, and Description are shown as columns -->
 	
 <!-- On September 30, 2015, Owen Ambur changed the prompt on the Role Name element from "As" to "Role:" on line 466.-->
@@ -135,16 +158,6 @@ Andre Cusson
 acusson@01COMMUNICATIONS.com
 --> 
 
-<!-- 
-Updated 2016-04-10
-- Added logic to output Desriptor content in the INDICATORS table
-
-Marijan (Mario) Madunic
-mario.madunic@nsxml.com
-North Shore XML Consulting
-BC, Canada
--->
-
 
 	<xsl:output encoding="UTF-8" indent="yes" method="html"/>
 	
@@ -236,14 +249,16 @@ a:hover { color: black; }
 			</head>
 			<body class="doc">
 				<!--present all of the title information-->
-				<table border="1">
+				<!-- (dhh) adding width -->
+				<table border="1" width="100%">
 					<tr>
 						<td width="25%" valign="top">
 							<xsl:call-template name="toc">
 								<xsl:with-param name="tocid" select="generate-id(//*[local-name(.) = 'StrategicPlanCore'])"/>
 							</xsl:call-template>
 						</td>
-						<td>
+						<!-- (dhh) adding style/padding -->
+						<td style="padding:10pt;">
 							<p class="docheading"><xsl:value-of select="$doc-type"/></p>
 							<p class="docsubheading"><xsl:value-of select="$plan/*[local-name(.) = 'Name']"/></p>
 							<p class="para"><xsl:value-of select="$plan/*[local-name(.) = 'Description']"/></p>
@@ -686,11 +701,17 @@ a:hover { color: black; }
 		<p class="para">
 			<xsl:apply-templates select="*[local-name(.) = 'Description']"/>
 		</p>
+		
+		<!-- (dhh) position of previous representation of <Relationship> elements -->
+		
+		<xsl:apply-templates select="." mode="makeMeasurementInstanceTable"/>
+		
+		<!-- (dhh) moved representation of <Relationship> elements from above to below the indicators table -->
 		<xsl:if test="normalize-space(*[local-name(.) = 'Relationship'])">
 			<p class="para">Relationships:</p>
 			<xsl:apply-templates select="*[local-name(.) = 'Relationship' and normalize-space(.)]"/>
 		</xsl:if>
-		<xsl:apply-templates select="." mode="makeMeasurementInstanceTable"/>
+		
 		<xsl:apply-templates select="*[local-name(.) = 'OtherInformation']"/>
 	</xsl:template>
 	
@@ -712,7 +733,8 @@ a:hover { color: black; }
 	</xsl:template>
 	
 	<xsl:template match="*[local-name(.) = 'PerformanceIndicator']" mode="makeMeasurementInstanceTable">
-		<table align="center" class="datatable">
+		<!-- (dhh) adding width -->
+		<table align="center" class="datatable" width="98%">
 			<thead>
 				<tr>
 					<th align="center" width="10%">Type</th>
@@ -728,7 +750,6 @@ a:hover { color: black; }
 						</xsl:choose>
 					</th>
 
-
 					<!-- Added: 2016-04-10 -->
 					<!-- Output child DescriptorName content -->
 					<xsl:choose>
@@ -738,24 +759,9 @@ a:hover { color: black; }
 						<xsl:otherwise />
 					</xsl:choose>
 					<!-- end -->
-
-
-					<!-- Added: 2016-04-10 -->
-					<!-- change the th @width for description if description exists -->
-					<xsl:variable name="thDescriptionWidth">
-						<xsl:choose>
-							<xsl:when test="descendant::*[local-name() = 'Descriptor']">
-								<xsl:value-of select="'45%'" />
-							</xsl:when>
-							<xsl:otherwise><xsl:value-of select="'60%'" /></xsl:otherwise>
-						</xsl:choose>
-					</xsl:variable>
-					<!-- end -->
-
-
-					<!-- Added: 2016-04-10 -->
-					<!-- output the value of $thDescriptionWidth as the value of @width -->
-					<th align="center" width="{$thDescriptionWidth}">Description</th>
+					
+					<!-- (dhh) modified width -->
+					<th align="center" width="*">Description</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -831,7 +837,8 @@ a:hover { color: black; }
 			<!-- Added: 2016-04-10 -->
 			<!-- Output child DescriptorValue content -->
 			<xsl:choose>
-				<xsl:when test="child::*[local-name() = 'Descriptor' and string-length(child::*) &gt; 0]">
+				<!-- (dhh) modified test for correct representation if only one <..Result> contains a <Descriptor> -->
+				<xsl:when test="../descendant::*[local-name() = 'Descriptor' and string-length(child::*) &gt; 0]">
 					<td align="center" width="15%">
 						<xsl:choose>
 							<xsl:when test="child::*[local-name(.) = 'Descriptor']/child::*[local-name(.) = 'DescriptorValue']">
@@ -847,23 +854,8 @@ a:hover { color: black; }
 			</xsl:choose>
 			<!-- end -->
 
-
-			<!-- Added: 2016-04-10 -->
-			<!-- change the td @width for description if description exists -->
-			<xsl:variable name="tdDescriptionWidth">
-				<xsl:choose>
-					<xsl:when test="descendant::*[local-name() = 'Descriptor']">
-						<xsl:value-of select="'45%'" />
-					</xsl:when>
-					<xsl:otherwise><xsl:value-of select="'60%'" /></xsl:otherwise>
-				</xsl:choose>
-			</xsl:variable>
-			<!-- end -->
-
-
-			<!-- Added: 2016-04-10 -->
-			<!-- output the value of $thDescriptionWidth as the value of @width -->
-			<td align="left" width="{$tdDescriptionWidth}">
+			<!-- (dhh) modified width -->
+			<td align="left" width="*">
 				<xsl:choose>
 					<xsl:when test="normalize-space(*[local-name(.) = 'Description'])">
 						<xsl:value-of select="*[local-name(.) = 'Description']"/>
