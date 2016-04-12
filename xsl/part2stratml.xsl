@@ -771,7 +771,7 @@ a:hover { color: black; }
 						[As a general rule, the element having the earliest <StartDate> should appear in the second row of the table,
 						immediately below the column headers,
 						and <TargetResult>s are commonly established prior to and, thus, should appear above <ActualResult>s. 
-						However, there may be instances in which “baseline” <ActualResult>s have been established from an earlier measurement period,
+						However, there may be instances in which "baseline" <ActualResult>s have been established from an earlier measurement period,
 						in which case the general rule should apply. 
 						However, if target and actual results have the same start and end dates, the target result should appear above the actual result in the table. 
 						In short, the first level of ordering should be based upon the <StartDate>, 
